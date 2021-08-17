@@ -1,7 +1,7 @@
-#include <Servo.h>
 #include <ESP8266WiFi.h>
+#include <Servo.h>
 
-#define led_pin  16
+#define DHT_pin  16
 #define sol_ileri 14
 #define sol_geri 12
 #define sol_hiz 5
@@ -9,6 +9,7 @@
 #define sag_ileri 13
 #define sag_geri 15
 #define sag_hiz 4
+
 
 WiFiClient client;
 WiFiServer server(80);
@@ -20,14 +21,10 @@ int slider_pos2;
 const char* ssid = "";
 const char* password = "";
 
-
-
 String data = "";
 
 Servo servo_1;
 Servo servo_2;
-
-
 
 void WifiBaglan()
 {
@@ -52,7 +49,7 @@ void setup(){
   pinMode(sag_geri, OUTPUT);
   pinMode(sol_hiz,OUTPUT);
   pinMode(sag_hiz,OUTPUT);
-  pinMode(led_pin,OUTPUT);
+  pinMode(DHT_pin,INPUT);
 
   servo_1.attach(0);
   servo_2.attach(2);
@@ -60,35 +57,35 @@ void setup(){
   Serial.begin(115200);
   WifiBaglan();
   server.begin();
-
 }
 
 String checkClient(void)
 {
   String request = client.readStringUntil('\r');
   while(!client.available()) delay(1);
-    
-  request.remove(0, 21);
+  request.remove(0,5);
+  request.remove(request.length()-9,9);
   return request;
 }
 
 void loop()
 {
-  digitalWrite(led_pin,HIGH);
   client = server.available();
   if (!client) return;
   data = checkClient();
+  Serial.println(data);
   
-
-  if (data == "ileri"){
+  int uzunluk = data.length();
+  
+  if (data == "w"){
     Ileri();}
-  else if (data == "geri"){
+  else if (data == "s"){
     Geri();}
-   else if (data == "sag"){
+   else if (data == "d"){
     Sag();}
-   else if (data == "sol"){
+   else if (data == "a"){
     Sol();}
-   else if (data == "dur"){
+   else if (data == "o"){
     Dur();}
    else if (data.startsWith("X")){
     Servo_X();
@@ -97,7 +94,6 @@ void loop()
     Servo_Y();
     }
  }
-
 
 void Ileri(){
     digitalWrite(sol_ileri,HIGH);
