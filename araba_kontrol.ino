@@ -11,6 +11,7 @@
 #define sag_hiz 4
 
 
+
 WiFiClient client;
 WiFiServer server(80);
 
@@ -18,8 +19,9 @@ int hiz = 55;
 int slider_pos1;
 int slider_pos2;
 
-const char* ssid = "";
-const char* password = "";
+
+const char* ssid = ""; // wifi ismi
+const char* password = ""; // wifi şifresi
 
 String data = "";
 
@@ -51,8 +53,8 @@ void setup(){
   pinMode(sag_hiz,OUTPUT);
   pinMode(DHT_pin,INPUT);
 
-  servo_1.attach(0);
-  servo_2.attach(2);
+  servo_1.attach(2);
+  servo_2.attach(0);
   
   Serial.begin(115200);
   WifiBaglan();
@@ -62,9 +64,14 @@ void setup(){
 String checkClient(void)
 {
   String request = client.readStringUntil('\r');
+  /*Gelen degeri parcalamak için önce 0. indexten 5. indexe kadar silme yapılır 
+   daha sonra gelen verinin uzunluk degeri alınır ve bu değerden 9 değeri düşülerek tekrar gelen istekten veri parçalanır.
+  */
+  //Serial.println(request); // GET /w HTTP/1.1 degeri doner
   while(!client.available()) delay(1);
-  request.remove(0,5);
-  request.remove(request.length()-9,9);
+  request.remove(0,5); // 0.index-5.index silinir ve "w HTTP/1.1"  oalrak çıktı verir.
+  request.remove(request.length()-9,9); /*dönen degerin uzunlugu alınır(10) ve bu değerden 9 çıkarılır deger 1. indexten 9. index a kadar silme yapar
+                                         sonuç olarak elimizde 0. index kalır. yani göndermek istedigimiz deger "w" */
   return request;
 }
 
