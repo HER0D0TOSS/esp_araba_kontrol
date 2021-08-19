@@ -83,11 +83,11 @@ void loop()
   Serial.println(data);
   
   int uzunluk = data.length();
-  sicaklik = (double)dht/ 1024;       
+  /*sicaklik = (double)dht/ 1024;       
   sicaklik = sicaklik * 5;                 
   sicaklik = sicaklik - 0.5;               
   sicaklik = sicaklik * 100;
-  Serial.println(sicaklik);
+  Serial.println(sicaklik);*/
   
   if (data == "w"){
     Ileri();}
