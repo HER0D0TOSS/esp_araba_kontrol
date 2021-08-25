@@ -1,10 +1,9 @@
-#include <DHT.h>
-#include <DHT_U.h>
-
 #include <ESP8266WiFi.h>
 #include <Servo.h>
+#include <dht11.h>
+#include "ThingSpeak.h"
 
-#define DHT_pin  16 //D0
+#define DHT_pin  16
 #define sol_ileri 14
 #define sol_geri 12
 #define sol_hiz 5
@@ -13,22 +12,26 @@
 #define sag_geri 15
 #define sag_hiz 4
 
-
+dht11 DHT11;
 
 WiFiClient client;
 WiFiServer server(80);
 
-String apiKey = "";     //  Enter your Write API key from ThingSpeak
-const char* server = "api.thingspeak.com";
+unsigned long Channel_ID = ;          // Size ait thingspeak kanal id giriniz
+const char * API_key = "";  // Thingspeak api keyinizi giriniz
+
+String tspeak_ip = "http://184.106.153.149";
 
 int hiz;
 
-int slider_hiz;
-int slider_pos1;
-int slider_pos2;
+int slider_hiz;                                // Telefondan gelen hız slider'ının tutuldugu değişken
+int slider_pos1;                              //  Telefondan gelen x slider'ının tutuldugu değişken
+int slider_pos2;                             //   Telefondan gelen y slider'ının tutuldugu değişken
 
-const char* ssid = "";//wifi isim
-const char* password = ""; // wifi şifre
+float sicaklik, nem;
+
+const char* ssid = "";                               //wifi isim girilecek yer
+const char* password = "";                 // wifi şifre girilecek yer
 
 String data = "";
 
@@ -38,7 +41,7 @@ Servo servo_2;
 void WifiBaglan()
 {
   Serial.println("Wifi'ye Baglaniliyor...");
-  WiFi.begin(ssid, password);
+  WiFi.begin(ssid, password);                             // wifi bağlanmak için ssid ve şifrenin eşleştiği yer
   while ((!(WiFi.status() == WL_CONNECTED)))
   {
     delay(300);
@@ -47,7 +50,7 @@ void WifiBaglan()
   Serial.println("");
   Serial.println("Wifi'ye Baglandı");
   Serial.println("Nodemcu ip:");
-  Serial.print((WiFi.localIP()));
+  Serial.print((WiFi.localIP()));                        //"localIP" esp nin wifide'ki ip sini gösterir
 }
 
 
@@ -58,25 +61,25 @@ void setup() {
   pinMode(sag_geri, OUTPUT);
   pinMode(sol_hiz, OUTPUT);
   pinMode(sag_hiz, OUTPUT);
-  pinMode(DHT_pin, INPUT);
 
-  servo_1.attach(2); //x
-  servo_2.attach(0); //y
+  servo_1.attach(2);                                    // X Servosunu Tetikler
+  servo_2.attach(0);                                   // Y Servosunu Tetikler
 
   Serial.begin(115200);
-  WifiBaglan();
+  WifiBaglan();                                      // WifiBaglan() fonksiyonunu çağırır
   server.begin();
+  ThingSpeak.begin(client);
 }
 
-String checkClient(void)
+String Dinle(void)
 {
   String request = client.readStringUntil('\r');
   /*Gelen degeri parcalamak için önce 0. indexten 5. indexe kadar silme yapılır
     daha sonra gelen verinin uzunluk degeri alınır ve bu değerden 9 değeri düşülerek tekrar gelen istekten veri parçalanır.
   */
-  //Serial.println(request); // GET /w HTTP/1.1 degeri doner
+  //Serial.println(request);                  // GET /w HTTP/1.1 degeri doner
   while (!client.available()) delay(1);
-  request.remove(0, 5); // 0.index-5.index silinir ve "w HTTP/1.1"  oalrak çıktı verir.
+  request.remove(0, 5);                     // 0.index-5.index silinir ve "w HTTP/1.1"  oalrak çıktı verir.
   request.remove(request.length() - 9, 9); /*dönen degerin uzunlugu alınır(10) ve bu değerden 9 çıkarılır deger 1. indexten 9. index a kadar silme yapar
                                          sonuç olarak elimizde 0. index kalır. yani göndermek istedigimiz deger "w" */
   return request;
@@ -84,10 +87,21 @@ String checkClient(void)
 
 void loop()
 {
+  int chk = DHT11.read(DHT_pin);
+  nem = (float)DHT11.humidity;
+  sicaklik = (float)DHT11.temperature;
+  delay(3);
+  ThingSpeak.writeField(Channel_ID, 1, sicaklik,API_key);   // 1 numaralı tabloya sıcaklık degerini gönderir
+  ThingSpeak.writeField(Channel_ID, 2, nem,API_key);  // 2 numaralı tabloya nem degerini gönderir 
+  //Serial.println(sicaklik);
+  //Serial.println(nem);
+  
   client = server.available();
   if (!client) return;
-  data = checkClient();
+  data = Dinle();
   Serial.println(data);
+  Serial.println();
+  client.print(data);
 
   //int uzunluk = data.length();
   if (data == "w") {
@@ -114,30 +128,6 @@ void loop()
   else if (data.startsWith("Y")) {
     Servo_Y();
   }
-  float nem = dht.readHumidity();
-  float Sicaklik = dht.readTemperature();
-  String postStr = apiKey;
-  postStr += "&field1=";
-  postStr += String(t);
-  postStr += "&field2=";
-  postStr += String(h);
-  postStr += "\r\n\r\n";
-
-  client.print("POST /update HTTP/1.1\n");
-  client.print("Host: api.thingspeak.com\n");
-  client.print("Connection: close\n");
-  client.print("X-THINGSPEAKAPIKEY: " + apiKey + "\n");
-  client.print("Content-Type: application/x-www-form-urlencoded\n");
-  client.print("Content-Length: ");
-  client.print(postStr.length());
-  client.print("\n\n");
-  client.print(postStr);
-
-  Serial.print("Temperature: ");
-  Serial.print(t);
-  Serial.print(" degrees Celcius, Humidity: ");
-  Serial.print(h);
-  Serial.println("%. Send to Thingspeak.");
 }
 
 void Ileri() {
