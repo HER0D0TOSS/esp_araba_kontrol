@@ -75,10 +75,8 @@ void setup() {
 
 String Dinle(void)
 {
-  String request = client.readStringUntil('\r');
-  /*Gelen degeri parcalamak için önce 0. indexten 5. indexe kadar silme yapılır
-    daha sonra gelen verinin uzunluk degeri alınır ve bu değerden 9 değeri düşülerek tekrar gelen istekten veri parçalanır.
-  */
+  String request = client.readStringUntil('\r'); /*Gelen degeri parcalamak için önce 0. indexten 5. indexe kadar silme yapılır
+                                                   daha sonra gelen verinin uzunluk degeri alınır ve bu değerden 9 değeri düşülerek tekrar gelen istekten veri parçalanır.*/ 
   //Serial.println(request);                  // GET /w HTTP/1.1 degeri doner
   while (!client.available()) delay(1);
   request.remove(0, 5);                     // 0.index-5.index silinir ve "w HTTP/1.1"  oalrak çıktı verir.
