@@ -17,8 +17,10 @@ dht11 DHT11;
 WiFiClient client;
 WiFiServer server(80);
 
-unsigned long Channel_ID = ;          // Size ait thingspeak kanal id giriniz
-const char * API_key = "";  // Thingspeak api keyinizi giriniz
+unsigned long Channel_ID_sicaklik =<>;// sicaklik kanal id'si  giriniz
+unsigned long Channel_ID_nem =<> ;   // Nem kanal id'si giriniz
+const char * API_key_sicaklik = "";  // Thingspeak api keyinizi giriniz
+const char * API_key_nem = "";
 
 String tspeak_ip = "http://184.106.153.149";
 
@@ -91,10 +93,9 @@ void loop()
   nem = (float)DHT11.humidity;
   sicaklik = (float)DHT11.temperature;
   delay(3);
-  ThingSpeak.writeField(Channel_ID, 1, sicaklik,API_key);   // 1 numaralı tabloya sıcaklık degerini gönderir
-  ThingSpeak.writeField(Channel_ID, 2, nem,API_key);  // 2 numaralı tabloya nem degerini gönderir 
-  //Serial.println(sicaklik);
-  //Serial.println(nem);
+  ThingSpeak.writeField(Channel_ID_sicaklik, 1, sicaklik,API_key_sicaklik);   // deger gönderir ise 200 degerini döndürür bir değişkene atayıp ekrana yazdırabilirsiniz
+  ThingSpeak.writeField(Channel_ID_nem, 1, nem,API_key_nem);
+  Serial.println(sicaklik);
   
   client = server.available();
   if (!client) return;
