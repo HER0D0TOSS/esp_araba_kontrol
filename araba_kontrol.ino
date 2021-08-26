@@ -101,8 +101,6 @@ void loop()
   if (!client) return;
   data = Dinle();
   Serial.println(data);
-  Serial.println();
-  client.print(data);
 
   //int uzunluk = data.length();
   if (data == "w") {
