@@ -184,23 +184,21 @@ void Dur() {
 }
 
 void Hiz() {
-  String data_hiz = data.substring(1, data.length());
-  slider_hiz = data_hiz.toInt();
-  hiz = slider_hiz;
+  String data_hiz = data.substring(1, data.length());     // string deger döner (1. indexten data'nın uzunluguna kadar veriyi yazar 0-250 ARASI DEGER" örn --> "H125" gibi
+  slider_hiz = data_hiz.toInt();  // dönen string degeri integer türüne çevrilir --> örn "H125" --> 125
+  hiz = slider_hiz;    // hiz değişkenine dönen deger yazılır
 }
 
 void Servo_X() {
-  String data_x = data.substring(1, data.length());
-  slider_pos1 = data_x.toInt();
-
-  servo_1.write(slider_pos1);
+//   String data_x = data.substring(1, data.length());     //string deger döner (1. indexten data'nın uzunluguna kadar veriyi yazar 0-180 ARASI DEGER" örn --> "X25" gibi
+  slider_pos1 = data_x.toInt();                           // dönen string degeri integer türüne çevrilir --> örn "X25" --> 25
+  servo_1.write(slider_pos1);         // dönen deger servo_1 degişkenine yazılır
   delay(3);
 }
 
 void Servo_Y() {
   String data_y = data.substring(1, data.length());
   slider_pos2 = data_y.toInt();
-
   servo_2.write(slider_pos2);
   delay(3);
 }
