@@ -17,8 +17,8 @@ dht11 DHT11;
 WiFiClient client;
 WiFiServer server(80);
 
-unsigned long Channel_ID_sicaklik =<>;// sicaklik kanal id'si  giriniz
-unsigned long Channel_ID_nem =<> ;   // Nem kanal id'si giriniz
+unsigned long Channel_ID_sicaklik = ;// sicaklik kanal id'si  giriniz
+unsigned long Channel_ID_nem = ;   // Nem kanal id'si giriniz
 const char * API_key_sicaklik = "";  // Thingspeak api keyinizi giriniz
 const char * API_key_nem = "";
 
